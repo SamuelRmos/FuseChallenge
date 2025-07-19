@@ -1,6 +1,7 @@
 package com.samuelrmos.fusechallenge.domain.remote
 
 import android.content.Context
+import com.samuelrmos.fusechallenge.BuildConfig
 import okhttp3.Cache
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient

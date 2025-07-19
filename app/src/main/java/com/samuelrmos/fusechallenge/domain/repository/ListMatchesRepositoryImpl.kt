@@ -1,22 +1,24 @@
 package com.samuelrmos.fusechallenge.domain.repository
 
-import com.samuelrmos.fusechallenge.data.state.ListMatchesRequestState
-import com.samuelrmos.fusechallenge.data.state.ListMatchesRequestState.Error
-import com.samuelrmos.fusechallenge.data.state.ListMatchesRequestState.Loading
+import com.samuelrmos.fusechallenge.data.state.MatchesListRequestState
+import com.samuelrmos.fusechallenge.data.state.MatchesListRequestState.Error
+import com.samuelrmos.fusechallenge.data.state.MatchesListRequestState.Loading
 import com.samuelrmos.fusechallenge.data.state.errorMessage
 import com.samuelrmos.fusechallenge.domain.remote.PandaApi
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 
 class ListMatchesRepositoryImpl(private val pandaApi: PandaApi) : IListMatchesRepository {
 
-    override fun fetchRunningMatches(page: Int): Flow<ListMatchesRequestState> = flow {
+    override fun fetchRunningMatches(page: Int): Flow<MatchesListRequestState> = flow {
         kotlin.runCatching {
             emit(Loading)
             pandaApi.fetchRunningMatches(page).run {
                 body()?.let {
                     if (isSuccessful) {
-                        emit(ListMatchesRequestState.Success(it))
+                        emit(MatchesListRequestState.Success(it))
                     } else {
                         emit(Error())
                     }
@@ -27,6 +29,5 @@ class ListMatchesRepositoryImpl(private val pandaApi: PandaApi) : IListMatchesRe
         }.onFailure {
             emit(Error(it.message ?: errorMessage))
         }
-    }
-
+    }.flowOn(IO)
 }

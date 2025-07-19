@@ -78,6 +78,7 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.okhttp.interceptor)
     implementation(libs.gson)
+    implementation(libs.coil)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
