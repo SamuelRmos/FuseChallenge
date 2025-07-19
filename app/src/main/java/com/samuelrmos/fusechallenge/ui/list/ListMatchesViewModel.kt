@@ -1,12 +1,16 @@
 package com.samuelrmos.fusechallenge.ui.list
 
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.samuelrmos.fusechallenge.data.MatchItem
+import com.samuelrmos.fusechallenge.data.MatchesResponse
 import com.samuelrmos.fusechallenge.data.state.MatchesListRequestState
 import com.samuelrmos.fusechallenge.data.state.MatchesListState
 import com.samuelrmos.fusechallenge.domain.repository.ListMatchesRepositoryImpl
 import com.samuelrmos.fusechallenge.ui.theme.NotRunning
 import com.samuelrmos.fusechallenge.ui.theme.Running
+import com.samuelrmos.fusechallenge.utils.formatDateTime
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,21 +24,51 @@ class ListMatchesViewModel(private val listMatchesRepository: ListMatchesReposit
 
     private val _stateMatchesResponse = MutableStateFlow(MatchesListState())
     val stateMatchesResponse = _stateMatchesResponse.asStateFlow()
+    private val sortedMatchesList = mutableListOf<MatchItem>()
 
     init {
         fetchListMatches()
     }
 
-    fun fetchListMatches(page: Int = 1) {
+    @VisibleForTesting
+    internal fun fetchListMatches(page: Int = 1) {
         viewModelScope.launch(IO) {
             listMatchesRepository.fetchRunningMatches(page).distinctUntilChanged()
                 .collectLatest { result ->
                     when (result) {
                         is MatchesListRequestState.Success -> {
+                            addRunningMatches(result.response)
+                            fetchUpcomingMatches()
+                        }
+
+                        is MatchesListRequestState.Loading -> {
+                            _stateMatchesResponse.update { it.copy(isLoading = true) }
+                        }
+
+                        is MatchesListRequestState.Error -> {
                             _stateMatchesResponse.update {
                                 it.copy(
                                     isLoading = false,
-                                    response = result.response
+                                    errorMessage = result.message
+                                )
+                            }
+                        }
+                    }
+                }
+        }
+    }
+
+    private fun fetchUpcomingMatches(page: Int = 1) {
+        viewModelScope.launch(IO) {
+            listMatchesRepository.fetchUpcomingMatches(page).distinctUntilChanged()
+                .collectLatest { result ->
+                    when (result) {
+                        is MatchesListRequestState.Success -> {
+                            addUpcomingMatches(result.response)
+                            _stateMatchesResponse.update {
+                                it.copy(
+                                    isLoading = false,
+                                    response = sortedMatchesList
                                 )
                             }
                         }
@@ -53,6 +87,45 @@ class ListMatchesViewModel(private val listMatchesRepository: ListMatchesReposit
                         }
                     }
                 }
+        }
+    }
+
+    @VisibleForTesting
+    internal fun addRunningMatches(matches: MutableList<MatchesResponse?>) {
+        matches.forEach {
+            it?.games?.forEach { game ->
+                if (game.status == "running") {
+                    val matchesResponse = MatchItem(
+                        game.beginAt?.formatDateTime(),
+                        game,
+                        it.serie,
+                        it.league,
+                        it.opponents[0],
+                        it.opponents[1],
+                    )
+                    sortedMatchesList.add(matchesResponse)
+                }
+            }
+        }
+    }
+
+    @VisibleForTesting
+    internal fun addUpcomingMatches(matches: MutableList<MatchesResponse?>) {
+        matches.forEach matches@{
+            it?.games?.forEach { game ->
+                if (game.status == "not_started" && it.opponents.size == 2) {
+                    val matchesResponse = MatchItem(
+                        it.beginAt?.formatDateTime(),
+                        game,
+                        it.serie,
+                        it.league,
+                        it.opponents[0],
+                        it.opponents[1],
+                    )
+                    sortedMatchesList.add(matchesResponse)
+                    return@matches
+                }
+            }
         }
     }
 

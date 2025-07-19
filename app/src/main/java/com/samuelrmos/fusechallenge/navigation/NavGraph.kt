@@ -6,8 +6,10 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.samuelrmos.fusechallenge.data.MatchItem
 import com.samuelrmos.fusechallenge.navigation.Screens.DetailScreen
 import com.samuelrmos.fusechallenge.navigation.Screens.ListMatchScreen
+import com.samuelrmos.fusechallenge.ui.DetailsScreen
 import com.samuelrmos.fusechallenge.ui.list.ListMatchesViewModel
 import com.samuelrmos.fusechallenge.ui.list.MatchesListScreen
 import org.koin.androidx.compose.koinViewModel
@@ -23,8 +25,8 @@ fun NavGraph(
             MatchesListScreen(actions = actions, viewModel = viewModel)
         }
         composable(route = DetailScreen.route) {
-//            val coinExchange = it.requiredArg<MatchesResponse>(DetailScreen.route)
-//            DetailScreen(coinExchange, actions)
+            val matchItem = it.requiredArg<MatchItem>(DetailScreen.route)
+            DetailsScreen(matchItem, actions)
         }
     }
 }

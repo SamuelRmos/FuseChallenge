@@ -9,6 +9,11 @@ interface PandaApi {
 
     @GET("matches/running")
     suspend fun fetchRunningMatches(
+        @Query("page") page: Int
+    ): Response<MutableList<MatchesResponse?>>
+
+    @GET("matches/upcoming")
+    suspend fun fetchUpcomingMatches(
         @Query("page") page: Int,
     ): Response<MutableList<MatchesResponse?>>
 }

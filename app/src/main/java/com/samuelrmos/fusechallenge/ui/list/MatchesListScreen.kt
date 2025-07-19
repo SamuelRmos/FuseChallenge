@@ -30,9 +30,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.samuelrmos.fusechallenge.navigation.Actions
+import com.samuelrmos.fusechallenge.navigation.Screens.DetailScreen
 import com.samuelrmos.fusechallenge.ui.card.MatchesCard
 import com.samuelrmos.fusechallenge.ui.theme.BackgroundColor
 import com.samuelrmos.fusechallenge.ui.theme.ColorText
+import com.samuelrmos.fusechallenge.ui.theme.robotoRegular
 
 @Composable
 fun MatchesListScreen(
@@ -50,15 +52,16 @@ fun MatchesListScreen(
 
     val requestState by viewModel.stateMatchesResponse.collectAsState()
 
-    Column(
-        modifier = Modifier.fillMaxSize().background(color = BackgroundColor),
-    ) {
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .background(color = BackgroundColor)) {
         Text(
             modifier = Modifier.padding(start = 24.dp, bottom = 15.dp, top = 20.dp),
             fontWeight = FontWeight.ExtraBold,
             fontSize = 35.sp,
             text = "Partidas",
-            color = ColorText
+            color = ColorText,
+            fontFamily = robotoRegular
         )
 
         with(requestState) {
@@ -67,7 +70,7 @@ fun MatchesListScreen(
                     Box(
                         modifier = modifier
                             .fillMaxSize()
-                            .background(MaterialTheme.colorScheme.surface),
+                            .background(BackgroundColor),
                         contentAlignment = Alignment.Center
                     ) {
                         CircularProgressIndicator(Modifier.testTag("loading"))
@@ -81,26 +84,23 @@ fun MatchesListScreen(
                         exit = shrinkVertically() + fadeOut()
                     ) {
                         LazyColumn(
-                            modifier = Modifier.fillMaxSize().padding(vertical = 10.dp),
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(vertical = 10.dp),
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.spacedBy(23.dp)
                         ) {
                             response.forEach {
-                                val sortedListGame = it?.games?.sortedByDescending { game ->
-                                    game.status == "running"
-                                }
-                                sortedListGame?.forEach { game ->
-                                    item {
-                                        MatchesCard(
-                                            it.beginAt,
-                                            it.opponents[0],
-                                            it.opponents[1],
-                                            it.league,
-                                            it.serie,
-                                            game
-                                        ) {
-
-                                        }
+                                item {
+                                    MatchesCard(
+                                        it?.beginAt,
+                                        it?.firstOpponent!!,
+                                        it.secondOpponent,
+                                        it.league,
+                                        it.serie,
+                                        it.game
+                                    ) {
+                                        actions.goToDetailScreen(Pair(DetailScreen.route, it))
                                     }
                                 }
                             }

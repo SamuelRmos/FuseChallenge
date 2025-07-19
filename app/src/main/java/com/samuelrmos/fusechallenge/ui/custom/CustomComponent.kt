@@ -21,7 +21,9 @@ import coil.compose.rememberAsyncImagePainter
 import com.samuelrmos.fusechallenge.data.League
 import com.samuelrmos.fusechallenge.data.Opponents
 import com.samuelrmos.fusechallenge.data.Serie
+import com.samuelrmos.fusechallenge.ui.theme.ColorSecondaryText
 import com.samuelrmos.fusechallenge.ui.theme.ColorText
+import com.samuelrmos.fusechallenge.ui.theme.robotoRegular
 
 @Composable
 fun TeamsImageComponent(opponent: Opponents) {
@@ -36,15 +38,16 @@ fun TeamsImageComponent(opponent: Opponents) {
                 .width(80.dp),
         ) {
             Image(
-                painter = rememberAsyncImagePainter(opponent.opponentDescriptions.imageUrl),
-                contentDescription = opponent.opponentDescriptions.name,
+                painter = rememberAsyncImagePainter(opponent.opponentDescriptions.imageUrl.orEmpty()),
+                contentDescription = opponent.opponentDescriptions.name.orEmpty(),
                 contentScale = ContentScale.Inside
             )
         }
         Text(
             fontSize = 12.sp,
-            text = opponent.opponentDescriptions.name,
-            color = ColorText
+            text = opponent.opponentDescriptions.name.orEmpty(),
+            color = ColorText,
+            fontFamily = robotoRegular
         )
     }
 }
@@ -63,16 +66,47 @@ fun LeagueCustomComponent(league: League, serie: Serie) {
             Modifier.width(20.dp),
         ) {
             Image(
-                painter = rememberAsyncImagePainter(league.imageUrl),
-                contentDescription = league.name,
+                painter = rememberAsyncImagePainter(league.imageUrl.orEmpty()),
+                contentDescription = league.name.orEmpty(),
                 contentScale = ContentScale.Inside
             )
         }
         Spacer(modifier = Modifier.width(10.dp))
         Text(
             fontSize = 10.5.sp,
-            text = "${league.name} ${serie.name}",
-            color = ColorText
+            text = "${league.name.orEmpty()} ${serie.name.orEmpty()}",
+            color = ColorText,
+            fontFamily = robotoRegular
         )
+    }
+}
+
+@Composable
+fun CardOpponentsContent(firstOpponent: Opponents, secondOpponent: Opponents) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 10.dp, bottom = 10.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 50.dp, end = 50.dp),
+            horizontalArrangement = Arrangement.SpaceAround,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            TeamsImageComponent(firstOpponent)
+            Spacer(Modifier.width(10.dp))
+            Text(
+                fontSize = 12.sp,
+                text = "VS",
+                color = ColorSecondaryText,
+                fontFamily = robotoRegular
+            )
+            Spacer(Modifier.width(10.dp))
+            TeamsImageComponent(secondOpponent)
+        }
     }
 }

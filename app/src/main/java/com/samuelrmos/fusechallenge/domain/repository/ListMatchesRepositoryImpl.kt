@@ -1,5 +1,6 @@
 package com.samuelrmos.fusechallenge.domain.repository
 
+import android.util.Log
 import com.samuelrmos.fusechallenge.data.state.MatchesListRequestState
 import com.samuelrmos.fusechallenge.data.state.MatchesListRequestState.Error
 import com.samuelrmos.fusechallenge.data.state.MatchesListRequestState.Loading
@@ -16,6 +17,25 @@ class ListMatchesRepositoryImpl(private val pandaApi: PandaApi) : IListMatchesRe
         kotlin.runCatching {
             emit(Loading)
             pandaApi.fetchRunningMatches(page).run {
+                body()?.let {
+                    if (isSuccessful) {
+                        emit(MatchesListRequestState.Success(it))
+                    } else {
+                        emit(Error())
+                    }
+                } ?: run {
+                    emit(Error())
+                }
+            }
+        }.onFailure {
+            emit(Error(it.message ?: errorMessage))
+        }
+    }.flowOn(IO)
+
+    override fun fetchUpcomingMatches(page: Int): Flow<MatchesListRequestState> = flow {
+        kotlin.runCatching {
+            emit(Loading)
+            pandaApi.fetchUpcomingMatches(page).run {
                 body()?.let {
                     if (isSuccessful) {
                         emit(MatchesListRequestState.Success(it))

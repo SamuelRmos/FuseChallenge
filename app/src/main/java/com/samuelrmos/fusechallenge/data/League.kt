@@ -1,10 +1,12 @@
 package com.samuelrmos.fusechallenge.data
 
+import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
 data class League(
-    val id: Int,
     @SerializedName("image_url")
-    val imageUrl: String,
-    val name: String
-)
+    val imageUrl: String?,
+    val name: String?
+): Parcelable
