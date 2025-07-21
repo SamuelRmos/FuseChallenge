@@ -1,6 +1,5 @@
 package com.samuelrmos.fusechallenge.domain.repository
 
-import android.util.Log
 import com.samuelrmos.fusechallenge.data.state.MatchesListRequestState
 import com.samuelrmos.fusechallenge.data.state.MatchesListRequestState.Error
 import com.samuelrmos.fusechallenge.data.state.MatchesListRequestState.Loading

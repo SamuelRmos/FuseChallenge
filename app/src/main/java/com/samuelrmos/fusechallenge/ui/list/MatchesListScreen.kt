@@ -90,17 +90,20 @@ fun MatchesListScreen(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.spacedBy(23.dp)
                         ) {
-                            response.forEach {
+                            response.forEach { matches ->
                                 item {
-                                    MatchesCard(
-                                        it?.beginAt,
-                                        it?.firstOpponent!!,
-                                        it.secondOpponent,
-                                        it.league,
-                                        it.serie,
-                                        it.game
-                                    ) {
-                                        actions.goToDetailScreen(Pair(DetailScreen.route, it))
+                                    if (matches?.firstOpponent != null
+                                        && matches.secondOpponent != null) {
+                                        MatchesCard(
+                                            matches.beginAt,
+                                            matches.firstOpponent,
+                                            matches.secondOpponent,
+                                            matches.league,
+                                            matches.serie,
+                                            matches.game
+                                        ) {
+                                            actions.goToDetailScreen(Pair(DetailScreen.route, matches))
+                                        }
                                     }
                                 }
                             }

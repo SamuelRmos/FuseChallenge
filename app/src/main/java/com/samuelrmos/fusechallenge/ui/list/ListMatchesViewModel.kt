@@ -7,7 +7,7 @@ import com.samuelrmos.fusechallenge.data.MatchItem
 import com.samuelrmos.fusechallenge.data.MatchesResponse
 import com.samuelrmos.fusechallenge.data.state.MatchesListRequestState
 import com.samuelrmos.fusechallenge.data.state.MatchesListState
-import com.samuelrmos.fusechallenge.domain.repository.ListMatchesRepositoryImpl
+import com.samuelrmos.fusechallenge.domain.repository.IListMatchesRepository
 import com.samuelrmos.fusechallenge.ui.theme.NotRunning
 import com.samuelrmos.fusechallenge.ui.theme.Running
 import com.samuelrmos.fusechallenge.utils.formatDateTime
@@ -19,7 +19,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class ListMatchesViewModel(private val listMatchesRepository: ListMatchesRepositoryImpl) :
+class ListMatchesViewModel(private val listMatchesRepository: IListMatchesRepository) :
     ViewModel() {
 
     private val _stateMatchesResponse = MutableStateFlow(MatchesListState())

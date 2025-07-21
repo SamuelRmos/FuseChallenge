@@ -9,6 +9,6 @@ data class MatchItem(
     val game: Game,
     val serie: Serie,
     val league: League,
-    val firstOpponent: Opponents,
-    val secondOpponent: Opponents
+    val firstOpponent: Opponents?,
+    val secondOpponent: Opponents?
 ) : Parcelable
