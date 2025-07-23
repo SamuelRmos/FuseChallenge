@@ -81,7 +81,6 @@ dependencies {
     implementation(libs.okhttp.interceptor)
     implementation(libs.gson)
     implementation(libs.coil)
-    testImplementation(libs.junit)
     testImplementation(libs.coroutines.test)
     testImplementation(libs.androidx.test)
     testImplementation(libs.mockk)
