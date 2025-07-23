@@ -42,6 +42,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
@@ -55,6 +56,8 @@ import com.samuelrmos.fusechallenge.ui.theme.BackgroundColor
 import com.samuelrmos.fusechallenge.ui.theme.CardBackgroundColor
 import com.samuelrmos.fusechallenge.ui.theme.ColorSecondaryText
 import com.samuelrmos.fusechallenge.ui.theme.ColorText
+import com.samuelrmos.fusechallenge.ui.theme.FusechallengeTheme
+import com.samuelrmos.fusechallenge.ui.theme.ImageBackgroundColor
 import com.samuelrmos.fusechallenge.ui.theme.robotoBold
 import com.samuelrmos.fusechallenge.ui.theme.robotoMedium
 import com.samuelrmos.fusechallenge.ui.theme.robotoRegular
@@ -222,12 +225,12 @@ fun CardLeftListPlayers(player: Players?) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .height(60.dp)
+            .fillMaxWidth()
+            .height(100.dp)
             .padding(top = 10.dp)
-            .clip(shape = RoundedCornerShape(bottomEnd = 20.dp, topEnd = 20.dp))
             .background(BackgroundColor),
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.Start,
+        horizontalAlignment = Alignment.End,
     ) {
         Card(
             modifier = Modifier.fillMaxSize(),
@@ -243,18 +246,19 @@ fun CardLeftListPlayers(player: Players?) {
                 Column(
                     modifier = Modifier
                         .fillMaxHeight()
-                        .padding(top = 10.dp),
+                        .padding(end = 10.dp),
                     horizontalAlignment = Alignment.End,
+                    verticalArrangement = Arrangement.Center,
                 ) {
                     Text(
                         fontWeight = FontWeight.Bold,
-                        fontSize = 10.sp,
+                        fontSize = 14.sp,
                         text = player?.nickName.orEmpty(),
                         color = ColorText,
                         fontFamily = robotoBold
                     )
                     Text(
-                        fontSize = 8.sp,
+                        fontSize = 12.sp,
                         text = "${player?.firstName.orEmpty()} ${player?.lastName.orEmpty()}",
                         color = ColorSecondaryText,
                         fontFamily = robotoRegular
@@ -263,9 +267,19 @@ fun CardLeftListPlayers(player: Players?) {
                 Column(
                     modifier = Modifier
                         .fillMaxHeight()
-                        .padding(start = 10.dp)
+                        .width(80.dp)
+                        .padding(end = 5.dp, bottom = 5.dp)
+                        .clip(
+                            shape = RoundedCornerShape(
+                                bottomStart = 10.dp,
+                                topStart = 10.dp,
+                                topEnd = 10.dp,
+                                bottomEnd = 10.dp
+                            )
+                        )
                 ) {
                     Image(
+                        modifier = Modifier.background(ImageBackgroundColor),
                         painter = rememberAsyncImagePainter(player?.imageUrl.orEmpty()),
                         contentDescription = player?.nickName.orEmpty(),
                         contentScale = ContentScale.Crop
@@ -281,7 +295,7 @@ fun CardRightListPlayers(player: Players?) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .height(60.dp)
+            .height(100.dp)
             .padding(top = 10.dp)
             .background(BackgroundColor),
         verticalArrangement = Arrangement.Center,
@@ -301,7 +315,7 @@ fun CardRightListPlayers(player: Players?) {
                 Column(
                     modifier = Modifier
                         .fillMaxHeight()
-                        .width(50.dp)
+                        .width(80.dp)
                         .padding(start = 5.dp, bottom = 5.dp)
                         .clip(
                             shape = RoundedCornerShape(
@@ -313,6 +327,7 @@ fun CardRightListPlayers(player: Players?) {
                         )
                 ) {
                     Image(
+                        modifier = Modifier.background(ImageBackgroundColor),
                         painter = rememberAsyncImagePainter(player?.imageUrl.orEmpty()),
                         contentDescription = player?.nickName.orEmpty(),
                         contentScale = ContentScale.Crop
@@ -326,19 +341,30 @@ fun CardRightListPlayers(player: Players?) {
                     verticalArrangement = Arrangement.Center,
                 ) {
                     Text(
-                        fontSize = 10.sp,
+                        fontSize = 14.sp,
                         text = player?.nickName.orEmpty(),
                         color = ColorText,
                         fontFamily = robotoBold
                     )
                     Text(
-                        fontSize = 8.sp,
+                        fontSize = 12.sp,
                         text = "${player?.firstName.orEmpty()} ${player?.lastName.orEmpty()}",
                         color = ColorSecondaryText,
                         fontFamily = robotoRegular
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+@Preview
+fun CardsPlayersPreview() {
+    FusechallengeTheme {
+        Column {
+            CardRightListPlayers(player = players)
+            CardLeftListPlayers(player = players)
         }
     }
 }
