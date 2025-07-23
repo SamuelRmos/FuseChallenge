@@ -13,6 +13,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -36,6 +40,7 @@ import com.samuelrmos.fusechallenge.ui.theme.BackgroundColor
 import com.samuelrmos.fusechallenge.ui.theme.ColorText
 import com.samuelrmos.fusechallenge.ui.theme.robotoRegular
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun MatchesListScreen(
     modifier: Modifier = Modifier,
@@ -49,12 +54,19 @@ fun MatchesListScreen(
             window.statusBarColor = BackgroundColor.toArgb()
         }
     }
+    val isRefreshing by viewModel.isRefresh.collectAsState()
+    val pullRefreshState = rememberPullRefreshState(
+        refreshing = isRefreshing,
+        onRefresh = viewModel::refresh
+    )
 
     val requestState by viewModel.stateMatchesResponse.collectAsState()
 
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .background(color = BackgroundColor)) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = BackgroundColor)
+    ) {
         Text(
             modifier = Modifier.padding(start = 24.dp, bottom = 15.dp, top = 20.dp),
             fontWeight = FontWeight.ExtraBold,
@@ -83,30 +95,47 @@ fun MatchesListScreen(
                         enter = expandVertically() + fadeIn(),
                         exit = shrinkVertically() + fadeOut()
                     ) {
-                        LazyColumn(
+                        Box(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .padding(vertical = 10.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(23.dp)
+                                .pullRefresh(pullRefreshState)
                         ) {
-                            response.forEach { matches ->
-                                item {
-                                    if (matches?.firstOpponent != null
-                                        && matches.secondOpponent != null) {
-                                        MatchesCard(
-                                            matches.beginAt,
-                                            matches.firstOpponent,
-                                            matches.secondOpponent,
-                                            matches.league,
-                                            matches.serie,
-                                            matches.game
+                            LazyColumn(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(vertical = 10.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(23.dp)
+                            ) {
+                                response.forEach { matches ->
+                                    item {
+                                        if (matches?.firstOpponent != null
+                                            && matches.secondOpponent != null
                                         ) {
-                                            actions.goToDetailScreen(Pair(DetailScreen.route, matches))
+                                            MatchesCard(
+                                                matches.beginAt,
+                                                matches.firstOpponent,
+                                                matches.secondOpponent,
+                                                matches.league,
+                                                matches.serie,
+                                                matches.game
+                                            ) {
+                                                actions.goToDetailScreen(
+                                                    Pair(
+                                                        DetailScreen.route,
+                                                        matches
+                                                    )
+                                                )
+                                            }
                                         }
                                     }
                                 }
                             }
+                            PullRefreshIndicator(
+                                modifier = Modifier.align(Alignment.TopCenter),
+                                state = pullRefreshState,
+                                refreshing = requestState.isLoading
+                            )
                         }
                     }
                 }

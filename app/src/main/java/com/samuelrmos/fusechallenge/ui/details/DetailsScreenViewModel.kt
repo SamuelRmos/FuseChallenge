@@ -1,10 +1,13 @@
 package com.samuelrmos.fusechallenge.ui.details
 
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.samuelrmos.fusechallenge.data.TeamsResponse
 import com.samuelrmos.fusechallenge.data.state.TeamsListState
-import com.samuelrmos.fusechallenge.data.state.TeamsRequestState
+import com.samuelrmos.fusechallenge.data.state.TeamsRequestState.Error
+import com.samuelrmos.fusechallenge.data.state.TeamsRequestState.Loading
+import com.samuelrmos.fusechallenge.data.state.TeamsRequestState.Success
 import com.samuelrmos.fusechallenge.domain.repository.ITeamsRepository
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,7 +17,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class DetailsScreenViewModel(private val teamsRepository: ITeamsRepository) : ViewModel() {
+open class DetailsScreenViewModel(private val teamsRepository: ITeamsRepository) : ViewModel() {
 
     private val _stateTeamsResponse = MutableStateFlow(TeamsListState())
     val stateTeamsResponse = _stateTeamsResponse.asStateFlow()
@@ -24,15 +27,15 @@ class DetailsScreenViewModel(private val teamsRepository: ITeamsRepository) : Vi
             teamsRepository.fetchTeams().distinctUntilChanged()
                 .collectLatest { result ->
                     when (result) {
-                        is TeamsRequestState.Success -> {
+                        is Success -> {
                             fetchPlayers(firstTeamName, secondTeamName, result.response)
                         }
 
-                        is TeamsRequestState.Loading -> {
+                        is Loading -> {
                             _stateTeamsResponse.update { it.copy(isLoading = true) }
                         }
 
-                        is TeamsRequestState.Error -> {
+                        is Error -> {
                             _stateTeamsResponse.update {
                                 it.copy(
                                     isLoading = false,
@@ -45,7 +48,8 @@ class DetailsScreenViewModel(private val teamsRepository: ITeamsRepository) : Vi
         }
     }
 
-    private fun fetchPlayers(
+    @VisibleForTesting
+    internal fun fetchPlayers(
         firstTeamName: String,
         secondTeamName: String,
         teamsList: MutableList<TeamsResponse?>

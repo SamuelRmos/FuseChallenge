@@ -21,7 +21,7 @@ private const val TOMORROW = "Amanhã,"
 fun String.formatDateTime(now: ZonedDateTime = now()): String {
     // Parse input date in UTC
     val inputDateTime = Instant.parse(this)
-        .atZone(ZoneId.of("America/Sao_Paulo"))
+        .atZone(ZoneId.systemDefault())
 
     val formatterTime = DateTimeFormatter.ofPattern(TIME_PATTERN)
     val formatterDate = DateTimeFormatter.ofPattern(DATE_PATTERN)

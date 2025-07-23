@@ -33,6 +33,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -65,12 +66,14 @@ fun DetailsScreen(
     actions: Actions,
     viewModel: DetailsScreenViewModel = koinViewModel()
 ) {
-    viewModel.fetchPlayers(
-        matchItem.firstOpponent?.opponentDescriptions?.name.orEmpty(),
-        matchItem.secondOpponent?.opponentDescriptions?.name.orEmpty(),
-    )
-
     val requestState by viewModel.stateTeamsResponse.collectAsState()
+
+    SideEffect {
+        viewModel.fetchPlayers(
+            matchItem.firstOpponent?.opponentDescriptions?.name.orEmpty(),
+            matchItem.secondOpponent?.opponentDescriptions?.name.orEmpty(),
+        )
+    }
 
     AnimatedVisibility(
         visible = true,
@@ -83,9 +86,17 @@ fun DetailsScreen(
                 .scrollable(rememberScrollState(), Orientation.Vertical)
                 .background(BackgroundColor)
         ) {
-            HeaderScreen(matchItem.league, matchItem.serie, actions)
-            Spacer(modifier = Modifier.height(20.dp))
-
+            if (matchItem.firstOpponent != null && matchItem.secondOpponent != null) {
+                HeaderScreen(matchItem.league, matchItem.serie, actions)
+                Spacer(modifier = Modifier.height(20.dp))
+                CardOpponentsContent(
+                    firstOpponent = matchItem.firstOpponent,
+                    secondOpponent = matchItem.secondOpponent
+                )
+                Spacer(modifier = Modifier.height(20.dp))
+                MatchDateTime(matchItem)
+                Spacer(modifier = Modifier.height(20.dp))
+            }
             if (requestState.isLoading) {
                 Box(
                     modifier = Modifier
@@ -95,24 +106,16 @@ fun DetailsScreen(
                 ) {
                     CircularProgressIndicator(Modifier.testTag("loading"))
                 }
-            } else if (matchItem.firstOpponent != null && matchItem.secondOpponent != null) {
-                CardOpponentsContent(
-                    firstOpponent = matchItem.firstOpponent,
-                    secondOpponent = matchItem.secondOpponent
+            }
+            AnimatedVisibility(
+                visible = true,
+                enter = expandVertically() + fadeIn(),
+                exit = shrinkVertically() + fadeOut()
+            ) {
+                ParallelPlayersLists(
+                    requestState.playersFirstTeams,
+                    requestState.playersSecondTeams
                 )
-                Spacer(modifier = Modifier.height(20.dp))
-                MatchDateTime(matchItem)
-                Spacer(modifier = Modifier.height(20.dp))
-                AnimatedVisibility(
-                    visible = true,
-                    enter = expandVertically() + fadeIn(),
-                    exit = shrinkVertically() + fadeOut()
-                ) {
-                    ParallelPlayersLists(
-                        requestState.playersFirstTeams,
-                        requestState.playersSecondTeams
-                    )
-                }
             }
         }
     }
