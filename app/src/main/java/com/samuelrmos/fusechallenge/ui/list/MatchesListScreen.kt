@@ -29,10 +29,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.samuelrmos.fusechallenge.R
 import com.samuelrmos.fusechallenge.navigation.Actions
 import com.samuelrmos.fusechallenge.navigation.Screens.DetailScreen
 import com.samuelrmos.fusechallenge.ui.card.MatchesCard
@@ -71,7 +73,7 @@ fun MatchesListScreen(
             modifier = Modifier.padding(start = 24.dp, bottom = 15.dp, top = 20.dp),
             fontWeight = FontWeight.ExtraBold,
             fontSize = 35.sp,
-            text = "Partidas",
+            text = stringResource(R.string.matches),
             color = ColorText,
             fontFamily = robotoRegular
         )
