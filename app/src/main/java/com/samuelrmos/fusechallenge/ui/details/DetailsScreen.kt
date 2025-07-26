@@ -45,6 +45,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavBackStackEntry
 import coil.compose.rememberAsyncImagePainter
 import com.samuelrmos.fusechallenge.data.League
 import com.samuelrmos.fusechallenge.data.MatchItem
@@ -67,16 +68,10 @@ import org.koin.androidx.compose.koinViewModel
 fun DetailsScreen(
     matchItem: MatchItem,
     actions: Actions,
-    viewModel: DetailsScreenViewModel = koinViewModel()
+    backStackEntry: NavBackStackEntry
 ) {
+    val viewModel: DetailsScreenViewModel = koinViewModel(viewModelStoreOwner = backStackEntry)
     val requestState by viewModel.stateTeamsResponse.collectAsState()
-
-    SideEffect {
-        viewModel.fetchPlayers(
-            matchItem.firstOpponent?.opponentDescriptions?.name.orEmpty(),
-            matchItem.secondOpponent?.opponentDescriptions?.name.orEmpty(),
-        )
-    }
 
     AnimatedVisibility(
         visible = true,

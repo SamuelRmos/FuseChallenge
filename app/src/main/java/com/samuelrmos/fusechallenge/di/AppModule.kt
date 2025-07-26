@@ -1,5 +1,6 @@
 package com.samuelrmos.fusechallenge.di
 
+import androidx.lifecycle.SavedStateHandle
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.samuelrmos.fusechallenge.domain.remote.BASE_URL
 import com.samuelrmos.fusechallenge.domain.remote.HttpClient
@@ -17,7 +18,9 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 val appModule = module {
     viewModel { ListMatchesViewModel(get()) }
-    viewModel { DetailsScreenViewModel(get()) }
+    viewModel { (handle: SavedStateHandle) ->
+        DetailsScreenViewModel(handle, get())
+    }
     factory { HttpClient(get()) }
     single { provideRetrofit(get()) }
     single<IListMatchesRepository> { ListMatchesRepositoryImpl(get()) }

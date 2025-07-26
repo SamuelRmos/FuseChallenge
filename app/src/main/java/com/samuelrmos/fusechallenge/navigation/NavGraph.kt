@@ -26,7 +26,7 @@ fun NavGraph(
         }
         composable(route = DetailScreen.route) {
             val matchItem = it.requiredArg<MatchItem>(DetailScreen.route)
-            DetailsScreen(matchItem, actions)
+            DetailsScreen(matchItem, actions, it)
         }
     }
 }
