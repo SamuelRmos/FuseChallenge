@@ -30,7 +30,7 @@ open class DetailsScreenViewModel(
     val stateTeamsResponse = _stateTeamsResponse.asStateFlow()
 
     init {
-        val firstTeamName = matchItem?.secondOpponent?.opponentDescriptions?.name.orEmpty()
+        val firstTeamName = matchItem?.firstOpponent?.opponentDescriptions?.name.orEmpty()
         val secondTeamName = matchItem?.secondOpponent?.opponentDescriptions?.name.orEmpty()
         fetchPlayers(firstTeamName, secondTeamName)
     }

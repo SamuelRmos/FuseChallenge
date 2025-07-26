@@ -1,5 +1,9 @@
 package com.samuelrmos.fusechallenge.ui.details
 
+import androidx.lifecycle.SavedStateHandle
+import com.samuelrmos.fusechallenge.data.MatchItem
+import com.samuelrmos.fusechallenge.data.OpponentDescriptions
+import com.samuelrmos.fusechallenge.data.Opponents
 import com.samuelrmos.fusechallenge.data.Players
 import com.samuelrmos.fusechallenge.data.TeamsResponse
 import com.samuelrmos.fusechallenge.data.state.TeamsListState
@@ -7,12 +11,12 @@ import com.samuelrmos.fusechallenge.data.state.TeamsRequestState
 import com.samuelrmos.fusechallenge.data.state.TeamsRequestState.Error
 import com.samuelrmos.fusechallenge.data.state.TeamsRequestState.Success
 import com.samuelrmos.fusechallenge.domain.repository.ITeamsRepository
+import com.samuelrmos.fusechallenge.navigation.Screens
 import io.mockk.MockKAnnotations.init
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
-import io.mockk.spyk
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
@@ -31,12 +35,32 @@ class DetailsScreenViewModelTest {
     @MockK
     private lateinit var teamsRepository: ITeamsRepository
 
-    private lateinit var detailsScreenViewModel: DetailsScreenViewModel
+    private lateinit var savedStateHandle: SavedStateHandle
 
     @Before
     fun setup() {
         init(this, relaxed = true)
-        detailsScreenViewModel = spyk(DetailsScreenViewModel(teamsRepository))
+        setupSavedStateHandle()
+    }
+
+    private fun setupSavedStateHandle() {
+        val teamA = "Team A"
+        val teamB = "Team B"
+        val matchItem = MatchItem(
+            beginAt = null,
+            game = mockk(),
+            serie = mockk(),
+            league = mockk(),
+            firstOpponent = Opponents(
+                opponentDescriptions = OpponentDescriptions(null, teamA),
+                type = ""
+            ),
+            secondOpponent = Opponents(
+                opponentDescriptions = OpponentDescriptions(null, teamB),
+                type = ""
+            )
+        )
+        savedStateHandle = SavedStateHandle(mapOf(Screens.DetailScreen.route to matchItem))
     }
 
 
@@ -49,7 +73,7 @@ class DetailsScreenViewModelTest {
 
             every { teamsRepository.fetchTeams() } returns flowOf(Success(response))
 
-            detailsScreenViewModel.fetchPlayers(teamA, teamB)
+            val detailsScreenViewModel = DetailsScreenViewModel(savedStateHandle, teamsRepository)
 
             coVerify { detailsScreenViewModel.fetchPlayers(teamA, teamB, response) }
         }
@@ -65,7 +89,7 @@ class DetailsScreenViewModelTest {
             emit(Error())
         }
 
-        detailsScreenViewModel.fetchPlayers(teamA, teamB)
+        val detailsScreenViewModel = DetailsScreenViewModel(savedStateHandle, teamsRepository)
 
         detailsScreenViewModel.stateTeamsResponse
             .take(2)
@@ -89,7 +113,7 @@ class DetailsScreenViewModelTest {
 
         every { teamsRepository.fetchTeams() } returns flowOf(TeamsRequestState.Loading)
 
-        detailsScreenViewModel.fetchPlayers(teamA, teamB)
+        val detailsScreenViewModel = DetailsScreenViewModel(savedStateHandle, teamsRepository)
 
         detailsScreenViewModel.stateTeamsResponse
             .take(1)
@@ -108,18 +132,19 @@ class DetailsScreenViewModelTest {
     fun `fetch players should returns state with team players when first team name contains on received list`() =
         runTest {
             val teamA = "Team A"
-            val teamB = "Team B"
-            val listPlayers = mockk<List<Players>>()
+            val player = mockk<Players>()
+            val listPlayers = listOf(player)
             val emittedStates = mutableListOf<TeamsListState>()
             val response = mutableListOf<TeamsResponse?>(TeamsResponse(teamA, listPlayers))
+            every { teamsRepository.fetchTeams() } returns flowOf(Success(response))
 
-            detailsScreenViewModel.fetchPlayers(teamA, teamB, response)
+            val detailsScreenViewModel = DetailsScreenViewModel(savedStateHandle, teamsRepository)
 
             detailsScreenViewModel.stateTeamsResponse
-                .take(1)
+                .take(2)
                 .onEach { emittedStates.add(it) }
                 .collect()
-            val state = emittedStates[0]
+            val state = emittedStates[1]
 
             state.run {
                 assertFalse(isLoading)
@@ -131,19 +156,21 @@ class DetailsScreenViewModelTest {
     @Test
     fun `fetch players should returns state with team players when second team name contains on received list`() =
         runTest {
-            val teamA = "Team A"
             val teamB = "Team B"
-            val listPlayers = mockk<List<Players>>()
+            val player = mockk<Players>()
+            val listPlayers = listOf(player)
             val emittedStates = mutableListOf<TeamsListState>()
             val response = mutableListOf<TeamsResponse?>(TeamsResponse(teamB, listPlayers))
 
-            detailsScreenViewModel.fetchPlayers(teamA, teamB, response)
+            every { teamsRepository.fetchTeams() } returns flowOf(Success(response))
+
+            val detailsScreenViewModel = DetailsScreenViewModel(savedStateHandle, teamsRepository)
 
             detailsScreenViewModel.stateTeamsResponse
-                .take(1)
+                .take(2)
                 .onEach { emittedStates.add(it) }
                 .collect()
-            val state = emittedStates[0]
+            val state = emittedStates[1]
 
             state.run {
                 assertFalse(isLoading)
