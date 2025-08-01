@@ -56,7 +56,7 @@ class ListMatchesViewModel(private val listMatchesRepository: IListMatchesReposi
                     when (result) {
                         is Success -> {
                             addRunningMatches(result.response)
-                            fetchUpcomingMatches()
+                            fetchUpcomingMatches(page)
                         }
 
                         is Loading -> {
@@ -87,7 +87,9 @@ class ListMatchesViewModel(private val listMatchesRepository: IListMatchesReposi
                             _stateMatchesResponse.update {
                                 it.copy(
                                     isLoading = false,
-                                    response = sortedMatchesList
+                                    response = sortedMatchesList.sortedByDescending { matchItem ->
+                                        matchItem.game.status == RUNNING
+                                    }
                                 )
                             }
                             updatePagination()
@@ -171,7 +173,7 @@ class ListMatchesViewModel(private val listMatchesRepository: IListMatchesReposi
         viewModelScope.launch(IO) {
             updateRefreshState(true)
             if (_paginationRatedState.value.isEndReached.not()) {
-                fetchUpcomingMatches(_paginationRatedState.value.skip)
+                fetchListMatches(_paginationRatedState.value.skip)
             }
             updateRefreshState(false)
         }
